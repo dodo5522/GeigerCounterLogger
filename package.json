@@ -1,0 +1,26 @@
+{
+  "name": "GeigerCounterLogger",
+  "version": "1.0.0",
+  "description": "Geiger counter logger supporting SEN-11345",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run lint && tsc",
+    "lint": "tslint -c tslint.json -p tsconfig.json --project",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Takashi Ando",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/command-line-args": "^5.0.0",
+    "@types/keen-tracking": "^2.0.0",
+    "@types/serialport": "^6.0.4",
+    "tslint": "^5.11.0",
+    "tslint-config-airbnb": "^5.11.0",
+    "typescript": "^3.0.3"
+  },
+  "dependencies": {
+    "command-line-args": "^5.0.2",
+    "keen-tracking": "^4.0.5",
+    "serialport": "^7.0.2"
+  }
+}
