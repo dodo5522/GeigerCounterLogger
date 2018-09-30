@@ -5,14 +5,16 @@ const Readline = require('@serialport/parser-readline')
 const { coefsCpmByMicroSvPerHour } = require('./configGmTubes');
 
 const GMTubeType = 'LND-712';
+let intervalChecker = undefined;
 
 const options = commandLineArgs([
 	{ name: 'project-id', alias: 'i', type: String },
 	{ name: 'key',        alias: 'k', type: String },
-	{ name: 'port',       alias: 'p', type: String, defaultOption: '/dev/ttyUSB0' },
+	{ name: 'port',       alias: 'p', type: String, defaultValue: '/dev/ttyUSB0' },
 	{ name: 'longitude',  alias: 'o', type: Number },
 	{ name: 'latitude',   alias: 'a', type: Number },
-	{ name: 'verbose',    alias: 'v', type: Boolean, defaultOption: false },
+	{ name: 'checker',    alias: 'c', type: Number, defaultValue: 10 },
+	{ name: 'verbose',    alias: 'v', type: Boolean, defaultValue: false },
 ]);
 
 const client = new KeenTracking({
@@ -28,6 +30,14 @@ const port = new SerialPort(
 	}
 );
 
+const setIntervalChecker = (interval) => {
+	return setTimeout(() => {
+		console.log(`Exit according to no response from geiger counter in ${interval} minutes`);
+		port.close();
+		process.exit(1);
+	}, interval * 60 * 1000);
+}
+
 port.pipe(new Readline());
 
 port.on('open', () => {
@@ -42,10 +52,17 @@ port.on('close', () => {
 	console.log('port closed!');
 });
 
-port.on('data', (data) => {
+port.on('data', (record) => {
+	const now = new Date().toISOString();
+
 	try {
-		const now = new Date().toISOString();
-		const cpm = Number(/(\d+)/.exec(data.toString())[0]);
+		if (intervalChecker) {
+			clearTimeout(intervalChecker);
+			intervalChecker = undefined;
+		}
+		intervalChecker = setIntervalChecker(options.checker);
+
+		const { cpm, sec } = JSON.parse(record.toString());
 		const coef = coefsCpmByMicroSvPerHour[GMTubeType];
 		const usv = (cpm / coef).toFixed(3);
 
@@ -64,12 +81,16 @@ port.on('data', (data) => {
 			if (err) {
 				console.log(`failed with ${err.message}`);
 			} else {
-				console.log(`${now}: ${GMTubeType}, ${cpm} CPM, ${usv} uSv/h`);
+				console.log(`${now}: ${GMTubeType}, ${cpm} CPM, ${usv} uSv/h, ${sec} seconds`);
 			}
 		});
 	} catch (err) {
-		console.log(`failed with ${err.message}`);
+		console.log(`failed with ${err.message} on data '${record.toString()}'`);
 	}
 });
 
+// Start interval checker
+intervalChecker = setIntervalChecker(options.checker);
+
+// Start logger process
 port.open();
