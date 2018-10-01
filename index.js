@@ -14,8 +14,13 @@ const options = commandLineArgs([
 	{ name: 'longitude',  alias: 'o', type: Number },
 	{ name: 'latitude',   alias: 'a', type: Number },
 	{ name: 'checker',    alias: 'c', type: Number, defaultValue: 10 },
-	{ name: 'verbose',    alias: 'v', type: Boolean, defaultValue: false },
+	{ name: 'log',        type: String },
+	{ name: 'log-level',  type: String, defaultValue: 'error' },
 ]);
+
+const logger = require('simple-node-logger')
+	.createSimpleLogger((options['log']) ? options.log : undefined);
+logger.setLevel(options['log-level']);
 
 const client = new KeenTracking({
 	projectId: options['project-id'],
@@ -32,7 +37,7 @@ const port = new SerialPort(
 
 const setIntervalChecker = (interval) => {
 	return setTimeout(() => {
-		console.log(`Exit according to no response from geiger counter in ${interval} minutes`);
+		logger.error(`Exit according to no response from geiger counter in ${interval} minutes`);
 		port.close();
 		process.exit(1);
 	}, interval * 60 * 1000);
@@ -41,15 +46,15 @@ const setIntervalChecker = (interval) => {
 port.pipe(new Readline());
 
 port.on('open', () => {
-	console.log('port opened!');
+	logger.info('port opened!');
 });
 
 port.on('error', (err) => {
-	console.log(JSON.stringify(err));
+	logger.info(JSON.stringify(err));
 });
 
 port.on('close', () => {
-	console.log('port closed!');
+	logger.info('port closed!');
 });
 
 port.on('data', (record) => {
@@ -79,13 +84,13 @@ port.on('data', (record) => {
 
 		client.recordEvent('radiations', radiationEvent, (err, res) => {
 			if (err) {
-				console.log(`failed with ${err.message}`);
+				logger.warn(`failed with ${err.message}`);
 			} else {
-				console.log(`${now}: ${GMTubeType}, ${cpm} CPM, ${usv} uSv/h, ${sec} seconds`);
+				logger.debug(`${now}: ${GMTubeType}, ${cpm} CPM, ${usv} uSv/h, ${sec} seconds`);
 			}
 		});
 	} catch (err) {
-		console.log(`failed with ${err.message} on data '${record.toString()}'`);
+		logger.warn(`failed with ${err.message} on data '${record.toString()}'`);
 	}
 });
 

@@ -21,6 +21,7 @@
   "dependencies": {
     "command-line-args": "^5.0.2",
     "keen-tracking": "^4.0.5",
-    "serialport": "^7.0.2"
+    "serialport": "^7.0.2",
+    "simple-node-logger": "^0.93.40"
   }
 }
