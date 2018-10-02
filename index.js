@@ -43,7 +43,7 @@ const setIntervalChecker = (interval) => {
 	}, interval * 60 * 1000);
 }
 
-port.pipe(new Readline());
+port.pipe(new Readline({ delimiter: '\r' }));
 
 port.on('open', () => {
 	logger.info('port opened!');
@@ -57,6 +57,8 @@ port.on('close', () => {
 	logger.info('port closed!');
 });
 
+let storedRecord = undefined;
+
 port.on('data', (record) => {
 	const now = new Date().toISOString();
 
@@ -67,7 +69,18 @@ port.on('data', (record) => {
 		}
 		intervalChecker = setIntervalChecker(options.checker);
 
-		const { cpm, sec } = JSON.parse(record.toString());
+		const r = record.toString();
+		if (r.indexOf('{') >= 0) {
+			storedRecord = r;
+			return;
+		} else if (storedRecord && r.indexOf('}') < 0) {
+			storedRecord += r;
+			return;
+		}
+
+		const { cpm, sec } = JSON.parse(storedRecord + r);
+		storedRecord = undefined;
+
 		const coef = coefsCpmByMicroSvPerHour[GMTubeType];
 		const usv = (cpm / coef).toFixed(3);
 
