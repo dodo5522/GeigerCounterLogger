@@ -5,7 +5,7 @@ const Readline = require('@serialport/parser-readline')
 const { coefsCpmByMicroSvPerHour } = require('./configGmTubes');
 
 const GMTubeType = 'LND-712';
-let intervalChecker = undefined;
+let watchDogTimer = undefined;
 
 const options = commandLineArgs([
 	{ name: 'project-id', alias: 'i', type: String },
@@ -13,7 +13,7 @@ const options = commandLineArgs([
 	{ name: 'port',       alias: 'p', type: String, defaultValue: '/dev/ttyUSB0' },
 	{ name: 'longitude',  alias: 'o', type: Number },
 	{ name: 'latitude',   alias: 'a', type: Number },
-	{ name: 'checker',    alias: 'c', type: Number, defaultValue: 10 },
+	{ name: 'timeout',    alias: 't', type: Number, defaultValue: 10 },
 	{ name: 'log',        type: String },
 	{ name: 'log-level',  type: String, defaultValue: 'error' },
 ]);
@@ -35,12 +35,13 @@ const port = new SerialPort(
 	}
 );
 
-const setIntervalChecker = (interval) => {
-	return setTimeout(() => {
-		logger.error(`Exit according to no response from geiger counter in ${interval} minutes`);
+const startWatchDogTimer = (timeout) => {
+	clearTimeout(watchDogTimer);
+
+	return watchDogTimer = setTimeout(() => {
 		port.close();
 		process.exit(1);
-	}, interval * 60 * 1000);
+	}, timeout * 60 * 1000);
 }
 
 port.pipe(new Readline({ delimiter: '\r' }));
@@ -63,12 +64,6 @@ port.on('data', (record) => {
 	const now = new Date().toISOString();
 
 	try {
-		if (intervalChecker) {
-			clearTimeout(intervalChecker);
-			intervalChecker = undefined;
-		}
-		intervalChecker = setIntervalChecker(options.checker);
-
 		const r = record.toString();
 		if (r.indexOf('{') >= 0) {
 			storedRecord = r;
@@ -80,6 +75,8 @@ port.on('data', (record) => {
 
 		const { cpm, sec } = JSON.parse(storedRecord + r);
 		storedRecord = undefined;
+
+		startWatchDogTimer(options.timeout);
 
 		const coef = coefsCpmByMicroSvPerHour[GMTubeType];
 		const usv = (cpm / coef).toFixed(3);
@@ -108,7 +105,7 @@ port.on('data', (record) => {
 });
 
 // Start interval checker
-intervalChecker = setIntervalChecker(options.checker);
+startWatchDogTimer(options.timeout);
 
 // Start logger process
 port.open();
