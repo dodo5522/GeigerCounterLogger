@@ -48,6 +48,9 @@ port.pipe(new Readline({ delimiter: '\r' }));
 
 port.on('open', () => {
 	logger.info('port opened!');
+
+	// Start interval checker
+	startWatchDogTimer(options.timeout);
 });
 
 port.on('error', (err) => {
@@ -61,7 +64,7 @@ port.on('close', () => {
 let storedRecord = undefined;
 
 port.on('data', (record) => {
-	const now = new Date().toISOString();
+	const now = Date.now();
 
 	try {
 		const r = record.toString();
@@ -87,9 +90,10 @@ port.on('data', (record) => {
 			usv: usv,
 			longitude: options.longitude,
 			latitude: options.latitude,
+			timestamp: now,
 			keen: {
-				timestamp: now
-			}
+				timestamp: new Date(now).toISOString,
+      }
 		};
 
 		client.recordEvent('radiations', radiationEvent, (err, res) => {
@@ -103,9 +107,6 @@ port.on('data', (record) => {
 		logger.warn(`failed with ${err.message} on data '${record.toString()}'`);
 	}
 });
-
-// Start interval checker
-startWatchDogTimer(options.timeout);
 
 // Start logger process
 port.open();
