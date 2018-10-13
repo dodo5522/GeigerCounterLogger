@@ -1,3 +1,7 @@
+const { KeenAnalysis } = require('keen-analysis');
+const { Chart }  = require('chart.js');
+const _ = require('chartjs-plugin-streaming');
+
 const durationWithMinute = 60;
 const keen = new KeenAnalysis({
 	projectId: '',

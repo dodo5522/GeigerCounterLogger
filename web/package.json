@@ -2,9 +2,12 @@
   "name": "geigercounterloggerwebmonitor",
   "version": "1.0.0",
   "description": "Geiger counter logger web monitor",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "build": "npm run lint && tsc",
+    "prebuild": "echo prebuild",
+    "build": "webpack",
+    "postbuild": "echo postbuild",
+    "buildts": "npm run lint && tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json --project",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,7 +19,9 @@
     "@types/serialport": "^6.0.4",
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.11.0",
-    "typescript": "^3.0.3"
+    "typescript": "^3.0.3",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
   },
   "dependencies": {
     "moment": "^2.22.2",

@@ -1,3 +1,4 @@
 .node-version
 dest
 node_modules
+web/dist/*.js*
