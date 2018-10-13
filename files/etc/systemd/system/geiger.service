@@ -1,0 +1,12 @@
+[Unit]
+Description=Geiger counter logger service
+After=network.target auditd.service
+
+[Service]
+EnvironmentFile=/etc/default/geiger
+ExecStart=/opt/geiger/run
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=geiger.service

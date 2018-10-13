@@ -1,0 +1,11 @@
+INSTALL_PATH=/opt/geiger
+NODE_BIN_PATH=/opt/nvm/versions/node/v8.12.0/bin/node
+NODE_PATH=${INSTALL_PATH}/node_modules
+
+PROJECT_ID=
+WRITE_KEY=
+PORT=/dev/ttyUSB0
+LONGITUDE=
+LATITUDE=
+CHECKER_INTERVAL_MINUTES=10
+LOG_LEVEL=debug
