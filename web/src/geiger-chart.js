@@ -3,14 +3,6 @@ const { Chart }  = require('chart.js');
 const _ = require('chartjs-plugin-streaming');
 
 const durationWithMinute = 60;
-const keen = new KeenAnalysis({
-	projectId: '',
-	readKey: ''
-});
-
-const ctx = document.getElementById('chartArea').getContext('2d');
-let chart = undefined;
-
 const color = Chart.helpers.color;
 const chartColors = {
 	red: 'rgb(255, 99, 132)',
@@ -21,6 +13,11 @@ const chartColors = {
 	purple: 'rgb(153, 102, 255)',
 	grey: 'rgb(201, 203, 207)'
 };
+
+const keen = new KeenAnalysis({
+	projectId: '',
+	readKey: ''
+});
 
 const chartConfig = {
 	type: 'line',
@@ -79,29 +76,36 @@ const resQueryToRadiationValues = resKeen => {
 	});
 };
 
-keen.query({
-	analysis_type: 'extraction',
-	event_collection: 'radiations',
-	timeframe: `this_${durationWithMinute + 1}_minutes`
-})
-.then(res => {
-	chart = new Chart(ctx, chartConfig);
-	// append the new data to the existing chart data
-	chart.data.datasets[0].data.push(...resQueryToRadiationValues(res));
-	chart.update();
-})
-.then(() => {
-	setInterval(() => {
-		keen.query({
-			analysis_type: 'extraction',
-			event_collection: 'radiations',
-			timeframe: `this_2_minutes`
-		})
-		.then(res => {
-			// append the new data to the existing chart data
-			chart.data.datasets[0].data.push(...resQueryToRadiationValues(res));
-			// update chart datasets keeping the current animation
-			chart.update({preservation: true});
-		});
-	}, 60 * 1000);
-});
+const listenerBodyLoaded = () => {
+	const ctx = document.getElementById('chartArea').getContext('2d');
+	let chart = undefined;
+
+	keen.query({
+		analysis_type: 'extraction',
+		event_collection: 'radiations',
+		timeframe: `this_${durationWithMinute + 1}_minutes`
+	})
+	.then(res => {
+		chart = new Chart(ctx, chartConfig);
+		// append the new data to the existing chart data
+		chart.data.datasets[0].data.push(...resQueryToRadiationValues(res));
+		chart.update();
+	})
+	.then(() => {
+		setInterval(() => {
+			keen.query({
+				analysis_type: 'extraction',
+				event_collection: 'radiations',
+				timeframe: `this_2_minutes`
+			})
+			.then(res => {
+				// append the new data to the existing chart data
+				chart.data.datasets[0].data.push(...resQueryToRadiationValues(res));
+				// update chart datasets keeping the current animation
+				chart.update({preservation: true});
+			});
+		}, 60 * 1000);
+	});
+};
+
+window.onload = listenerBodyLoaded;
