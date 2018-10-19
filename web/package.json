@@ -4,12 +4,12 @@
   "description": "Geiger counter logger web monitor",
   "private": true,
   "scripts": {
-    "prebuild": "echo prebuild",
+    "html": "for f in $(ls src/*.pug); do pug -o dist $f; done",
+    "tsbuild": "npm run lint && tsc",
+    "tslint": "tslint -c tslint.json -p tsconfig.json --project",
+    "prebuild": "npm run html",
     "build": "webpack",
-    "postbuild": "echo postbuild",
-    "buildts": "npm run lint && tsc",
-    "lint": "tslint -c tslint.json -p tsconfig.json --project",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postbuild": "echo postbuild"
   },
   "author": "Takashi Ando",
   "license": "MIT",
@@ -21,6 +21,8 @@
     "@types/keen-tracking": "^2.0.0",
     "@types/serialport": "^6.0.4",
     "babel-loader": "^8.0.4",
+    "pug": "^2.0.3",
+    "pug-cli": "^1.0.0-alpha6",
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.11.0",
     "typescript": "^3.0.3",
