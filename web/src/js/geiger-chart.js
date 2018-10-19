@@ -34,7 +34,6 @@ const chartConfig = {
 	options: {
 		title: {
 			display: true,
-			text: '空間放射線量観測所 @昭島市',
 			position: 'top',
 			fontSize: 18
 		},
