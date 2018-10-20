@@ -10,7 +10,8 @@
     "prebuild": "npm run html",
     "build": "mkdir -p dist; webpack",
     "postbuild": "echo postbuild",
-    "clean": "rm -rf dist/*"
+    "clean": "rm -rf dist/*",
+    "server": "webpack-dev-server"
   },
   "author": "Takashi Ando",
   "license": "MIT",
@@ -28,7 +29,8 @@
     "tslint-config-airbnb": "^5.11.0",
     "typescript": "^3.0.3",
     "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9"
   },
   "dependencies": {
     "moment": "^2.22.2",
