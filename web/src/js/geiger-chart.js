@@ -40,6 +40,10 @@ const chartConfig = {
 		scales: {
 			xAxes: [{
 				type: 'realtime',				// x axis will auto-scroll from right to left
+				scaleLabel: {
+					display: true,
+					labelString: 'Datetime',
+				},
 				realtime: {							// per-axis options
 					duration: durationWithMinute * 60 * 1000,	// data in the past 24h will be displayed
 					delay: 60 * 1000,			// delay of 1 minute, so upcoming values are known before plotting a line
@@ -49,7 +53,10 @@ const chartConfig = {
 			}],
 			yAxes: [{
 				display: true,
-				labelString: 'uSv/h',
+				scaleLabel: {
+					display: true,
+					labelString: 'uSv/h',
+				},
 				ticks: {
 					beginAtZero: true,
 					min: 0,
