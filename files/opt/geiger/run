@@ -1,0 +1,9 @@
+#!/bin/bash
+${NODE_BIN_PATH} ${INSTALL_PATH}/index.js \
+	--project-id ${PROJECT_ID} \
+	--key ${WRITE_KEY} \
+	--port ${PORT} \
+	--longitude ${LONGITUDE} \
+	--latitude ${LATITUDE} \
+	--timeout ${CHECKER_INTERVAL_MINUTES} \
+	--log-level ${LOG_LEVEL}

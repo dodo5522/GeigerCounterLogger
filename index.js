@@ -82,7 +82,7 @@ port.on('data', (record) => {
 		startWatchDogTimer(options.timeout);
 
 		const coef = coefsCpmByMicroSvPerHour[GMTubeType];
-		const usv = (cpm / coef).toFixed(3);
+		const usv = Number((cpm / coef).toFixed(3));
 
 		const radiationEvent = {
 			type: GMTubeType,
